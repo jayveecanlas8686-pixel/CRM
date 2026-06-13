@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports — NexusCRM</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-wrapper">
+    <header class="topbar" id="topbar"></header>
+    <main class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Reports & Analytics</h1>
+          <p class="page-subtitle">Data-driven insights for your sales team</p>
+        </div>
+        <div class="page-actions">
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="date" class="filter-select" id="reportStart">
+            <span style="color:var(--text-muted)">to</span>
+            <input type="date" class="filter-select" id="reportEnd">
+            <button class="btn btn-primary btn-sm" onclick="applyDateRange()"><i class="fas fa-filter"></i> Apply</button>
+          </div>
+        </div>
+      </div>
+      <!-- Export buttons -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+        <button class="btn btn-outline btn-sm" onclick="exportReport('sales')"><i class="fas fa-download"></i> Export Sales CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="exportReport('leads')"><i class="fas fa-download"></i> Export Leads CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="exportReport('tasks')"><i class="fas fa-download"></i> Export Tasks CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="exportReport('customers')"><i class="fas fa-download"></i> Export Customers CSV</button>
+      </div>
+      <!-- Chart Grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+        <div class="report-chart-container">
+          <div class="report-chart-title"><i class="fas fa-trophy" style="color:var(--warning)"></i> Sales Performance by Rep</div>
+          <div id="salesPerformanceChart"></div>
+        </div>
+        <div class="report-chart-container">
+          <div class="report-chart-title"><i class="fas fa-user-plus" style="color:var(--primary)"></i> Lead Conversion by Source</div>
+          <div id="leadConversionChart"></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+        <div class="report-chart-container">
+          <div class="report-chart-title"><i class="fas fa-chart-line" style="color:var(--success)"></i> Revenue Forecast</div>
+          <div id="revenueForecastChart"></div>
+        </div>
+        <div class="report-chart-container">
+          <div class="report-chart-title"><i class="fas fa-tasks" style="color:var(--accent)"></i> Task Completion Rate</div>
+          <div id="taskCompletionChart"></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:20px">
+        <div class="report-chart-container">
+          <div class="report-chart-title"><i class="fas fa-users" style="color:var(--secondary)"></i> Customer Growth</div>
+          <div id="customerGrowthChart"></div>
+        </div>
+        <div class="report-chart-container">
+          <div class="report-chart-title"><i class="fas fa-handshake" style="color:var(--primary)"></i> Top Deals</div>
+          <div id="topDealsTable"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modal"></div></div>
+<div class="toast-container" id="toastContainer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/reports.js"></script>
+<script>document.addEventListener('DOMContentLoaded', initReports);</script>
+</body>
+</html>

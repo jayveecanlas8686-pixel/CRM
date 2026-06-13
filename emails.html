@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emails — NexusCRM</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-wrapper">
+    <header class="topbar" id="topbar"></header>
+    <main class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Email Center</h1>
+          <p class="page-subtitle">Manage customer communications</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" onclick="openCompose()"><i class="fas fa-edit"></i> Compose</button>
+        </div>
+      </div>
+      <div class="email-layout">
+        <!-- Sidebar folders -->
+        <div class="email-sidebar">
+          <button class="btn btn-primary w-full mb-4" onclick="openCompose()"><i class="fas fa-edit"></i> Compose</button>
+          <div class="email-folder active" id="folder-all" onclick="setFolder('all')">
+            <div><i class="fas fa-inbox" style="margin-right:8px"></i> All Mail</div>
+            <span class="email-folder-count" id="fCount-all">0</span>
+          </div>
+          <div class="email-folder" id="folder-inbox" onclick="setFolder('inbox')">
+            <div><i class="fas fa-inbox" style="margin-right:8px"></i> Inbox</div>
+            <span class="email-folder-count" id="fCount-inbox">0</span>
+          </div>
+          <div class="email-folder" id="folder-sent" onclick="setFolder('sent')">
+            <div><i class="fas fa-paper-plane" style="margin-right:8px"></i> Sent</div>
+            <span class="email-folder-count" id="fCount-sent">0</span>
+          </div>
+          <div style="border-top:1px solid var(--border);margin:12px 0;padding-top:12px">
+            <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px">Templates</div>
+            <div style="padding:6px 8px;border-radius:6px;font-size:0.8rem;cursor:pointer;transition:background 0.2s" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background=''" onclick="useTemplate('Intro Email')">
+              <div style="font-weight:600">Intro Email</div>
+              <div style="font-size:0.72rem;color:var(--text-muted)">Introduction email for new leads</div>
+            </div>
+            <div style="padding:6px 8px;border-radius:6px;font-size:0.8rem;cursor:pointer;transition:background 0.2s" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background=''" onclick="useTemplate('Follow-up')">
+              <div style="font-weight:600">Follow-up</div>
+              <div style="font-size:0.72rem;color:var(--text-muted)">Post-meeting follow-up</div>
+            </div>
+            <div style="padding:6px 8px;border-radius:6px;font-size:0.8rem;cursor:pointer;transition:background 0.2s" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background=''" onclick="useTemplate('Proposal Send')">
+              <div style="font-weight:600">Proposal Send</div>
+              <div style="font-size:0.72rem;color:var(--text-muted)">Sending proposal document</div>
+            </div>
+            <div style="padding:6px 8px;border-radius:6px;font-size:0.8rem;cursor:pointer;transition:background 0.2s" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background=''" onclick="useTemplate('Thank You')">
+              <div style="font-weight:600">Thank You</div>
+              <div style="font-size:0.72rem;color:var(--text-muted)">After deal close</div>
+            </div>
+          </div>
+        </div>
+        <!-- Email list + view -->
+        <div style="display:grid;grid-template-columns:280px 1fr;flex:1;overflow:hidden">
+          <div class="email-list" id="emailList"></div>
+          <div class="email-view" id="emailView">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-muted)">
+              <i class="fas fa-envelope-open" style="font-size:3rem;margin-bottom:16px;opacity:0.3"></i>
+              <p>Select an email to read</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modal"></div></div>
+<div class="toast-container" id="toastContainer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  let currentFolder = 'all';
+  let currentEmailId = null;
+
+  function initEmails() {
+    initApp('Emails');
+    updateFolderCounts();
+    loadEmailList();
+  }
+
+  function updateFolderCounts() {
+    const emails = DB.getAll('emails');
+    document.getElementById('fCount-all').textContent = emails.length;
+    document.getElementById('fCount-inbox').textContent = emails.filter(e=>e.folder==='inbox').length;
+    document.getElementById('fCount-sent').textContent = emails.filter(e=>e.folder==='sent').length;
+  }
+
+  function setFolder(folder) {
+    currentFolder = folder;
+    document.querySelectorAll('.email-folder').forEach(f => f.classList.remove('active'));
+    document.getElementById('folder-' + folder)?.classList.add('active');
+    loadEmailList();
+  }
+
+  function loadEmailList() {
+    const el = document.getElementById('emailList');
+    if (!el) return;
+    let emails = DB.getAll('emails');
+    if (currentFolder !== 'all') emails = emails.filter(e => e.folder === currentFolder);
+    emails.sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt));
+    if (!emails.length) { el.innerHTML = '<div class="empty-state" style="padding:24px"><i class="fas fa-inbox"></i><p>No emails here</p></div>'; return; }
+    el.innerHTML = emails.map(e => `
+      <div class="email-item ${currentEmailId===e.id?'active':''}" onclick="viewEmail(${e.id})">
+        <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+          <div class="email-item-from">${escapeHtml(e.folder==='sent' ? e.toName : e.fromName)}</div>
+          <div class="email-item-time">${formatDateRelative(e.sentAt)}</div>
+        </div>
+        <div class="email-item-subject">${escapeHtml(e.subject)}</div>
+        <div class="email-item-preview">${escapeHtml(e.body.substring(0,80))}...</div>
+      </div>`).join('');
+  }
+
+  function viewEmail(id) {
+    currentEmailId = id;
+    const email = DB.getById('emails', id);
+    if (!email) return;
+    loadEmailList();
+    const el = document.getElementById('emailView');
+    el.innerHTML = `
+      <div class="email-view-header">
+        <div class="email-view-subject">${escapeHtml(email.subject)}</div>
+        <div class="email-view-meta">
+          <div><strong>From:</strong> ${escapeHtml(email.fromName)} &lt;${escapeHtml(email.from)}&gt;</div>
+          <div><strong>To:</strong> ${escapeHtml(email.toName)} &lt;${escapeHtml(email.to)}&gt;</div>
+          <div><strong>Date:</strong> ${formatDate(email.sentAt, true)}</div>
+          <div style="margin-top:8px">${statusBadge(email.folder === 'sent' ? 'sent' : 'received')}</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-outline btn-sm" onclick="replyEmail(${id})"><i class="fas fa-reply"></i> Reply</button>
+          <button class="btn btn-outline btn-sm" onclick="forwardEmail(${id})"><i class="fas fa-forward"></i> Forward</button>
+          <button class="btn btn-ghost btn-sm" onclick="deleteEmail(${id})" style="color:var(--danger)"><i class="fas fa-trash"></i> Delete</button>
+        </div>
+      </div>
+      <div class="email-view-body" style="white-space:pre-wrap">${escapeHtml(email.body)}</div>`;
+  }
+
+  function openCompose(opts = {}) {
+    const customers = DB.getAll('customers');
+    const user = Auth.getCurrentUser();
+    const templates = {
+      'Intro Email': `Hi {{name}},\n\nMy name is ${user?.name}, and I'm reaching out because I believe NexusCRM could be a great fit for your team.\n\nWould you be open to a 20-minute discovery call this week?\n\nBest regards,\n${user?.name}`,
+      'Follow-up': `Hi {{name}},\n\nThank you for your time during our recent meeting. I wanted to follow up and address any questions you might have.\n\nPlease don't hesitate to reach out.\n\nBest regards,\n${user?.name}`,
+      'Proposal Send': `Hi {{name}},\n\nPlease find our proposal attached for your review.\n\nI'm happy to walk through the details on a call if that would be helpful.\n\nBest regards,\n${user?.name}`,
+      'Thank You': `Hi {{name}},\n\nThank you for choosing NexusCRM! We're excited to have you onboard.\n\nYour dedicated account manager will be in touch shortly to schedule your onboarding.\n\nWelcome to the team!\n\n${user?.name}`
+    };
+    showModal({
+      title: 'Compose Email', size: 'lg',
+      body: `
+        <div class="form-group"><label class="form-label required">To</label>
+          <select class="form-select" id="emailTo" onchange="updateToName()">
+            <option value="">Select customer...</option>
+            ${customers.map(c => `<option value="${c.email}" data-name="${escapeHtml(c.contactPerson)}" data-id="${c.id}" ${opts.to===c.email?'selected':''}>${escapeHtml(c.contactPerson)} — ${escapeHtml(c.email)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label required">Subject</label>
+          <input class="form-input" id="emailSubject" placeholder="Email subject" value="${escapeHtml(opts.subject||'')}">
+        </div>
+        <div class="form-group"><label class="form-label">Template</label>
+          <select class="form-select" id="emailTemplate" onchange="applyTemplate(this.value, Object.fromEntries(${JSON.stringify(Object.entries(templates))}))">
+            <option value="">No template</option>
+            ${Object.keys(templates).map(t => `<option value="${t}">${t}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label required">Message</label>
+          <textarea class="form-textarea" id="emailBody" style="min-height:200px" placeholder="Write your message here...">${escapeHtml(opts.body||'')}</textarea>
+        </div>`,
+      footer: `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="sendEmail()"><i class="fas fa-paper-plane"></i> Send Email</button>`
+    });
+    window._emailTemplates = templates;
+  }
+
+  function applyTemplate(name, templates) {
+    const body = document.getElementById('emailBody');
+    if (body && templates && templates[name]) body.value = templates[name];
+  }
+
+  function useTemplate(name) {
+    openCompose({ subject: name });
+    setTimeout(() => {
+      const sel = document.getElementById('emailTemplate');
+      if (sel) { sel.value = name; applyTemplate(name, window._emailTemplates); }
+    }, 100);
+  }
+
+  function updateToName() { /* handled by sendEmail */ }
+
+  function sendEmail() {
+    const toSel = document.getElementById('emailTo');
+    const to = toSel?.value;
+    const toName = toSel?.options[toSel.selectedIndex]?.getAttribute('data-name') || '';
+    const customerId = parseInt(toSel?.options[toSel.selectedIndex]?.getAttribute('data-id')) || null;
+    const subject = document.getElementById('emailSubject')?.value.trim();
+    const body = document.getElementById('emailBody')?.value.trim();
+    const user = Auth.getCurrentUser();
+    if (!to || !subject || !body) { showToast('Please fill all required fields', 'error'); return; }
+    const email = {
+      id: DB.nextId('emails'), folder: 'sent',
+      from: user?.email || 'admin@example.com', fromName: user?.name || 'CRM User',
+      to, toName, subject, body, templateId: null, status: 'sent',
+      sentAt: new Date().toISOString(), customerId
+    };
+    DB.save('emails', email);
+    logActivity('email', `Email sent to ${toName}: "${subject}"`, customerId ? { type: 'customer', id: customerId, name: toName } : null);
+    closeModal();
+    updateFolderCounts();
+    loadEmailList();
+    showToast('Email sent successfully!', 'success');
+  }
+
+  function replyEmail(id) {
+    const email = DB.getById('emails', id);
+    if (!email) return;
+    openCompose({ to: email.from, subject: 'Re: ' + email.subject, body: '\n\n---\n' + email.body.substring(0, 100) + '...' });
+  }
+
+  function forwardEmail(id) {
+    const email = DB.getById('emails', id);
+    if (!email) return;
+    openCompose({ subject: 'Fwd: ' + email.subject, body: '\n\n---\nForwarded from ' + email.fromName + ':\n\n' + email.body });
+  }
+
+  function deleteEmail(id) {
+    showConfirm('Delete this email?', () => {
+      DB.delete('emails', id);
+      currentEmailId = null;
+      document.getElementById('emailView').innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-muted)"><i class="fas fa-envelope-open" style="font-size:3rem;margin-bottom:16px;opacity:0.3"></i><p>Email deleted</p></div>';
+      updateFolderCounts();
+      loadEmailList();
+      showToast('Email deleted', 'success');
+    }, { danger: true });
+  }
+
+  document.addEventListener('DOMContentLoaded', initEmails);
+</script>
+</body>
+</html>

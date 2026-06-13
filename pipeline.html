@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pipeline — NexusCRM</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-wrapper">
+    <header class="topbar" id="topbar"></header>
+    <main class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Sales Pipeline</h1>
+          <p class="page-subtitle">Drag and drop deals between stages</p>
+        </div>
+        <div class="page-actions">
+          <div id="pipelineStats" class="pipeline-summary"></div>
+          <a href="deals.html" class="btn btn-outline"><i class="fas fa-list"></i> List View</a>
+          <button class="btn btn-primary" onclick="openAddDeal()"><i class="fas fa-plus"></i> Add Deal</button>
+        </div>
+      </div>
+      <div id="kanbanBoard" class="kanban-board"></div>
+    </main>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modal"></div></div>
+<div class="toast-container" id="toastContainer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/deals.js"></script>
+<script>document.addEventListener('DOMContentLoaded', initPipeline);</script>
+</body>
+</html>

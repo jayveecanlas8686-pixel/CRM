@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tasks — NexusCRM</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-wrapper">
+    <header class="topbar" id="topbar"></header>
+    <main class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Tasks & Follow-ups</h1>
+          <p class="page-subtitle">Stay on top of your sales activities</p>
+        </div>
+        <div class="page-actions">
+          <a href="calendar.html" class="btn btn-outline"><i class="fas fa-calendar"></i> Calendar View</a>
+          <button class="btn btn-outline" onclick="exportTasks()"><i class="fas fa-download"></i> Export</button>
+          <button class="btn btn-primary" onclick="openAddTask()"><i class="fas fa-plus"></i> Add Task</button>
+        </div>
+      </div>
+      <!-- Stats -->
+      <div id="taskStats" class="stats-grid" style="margin-bottom:20px"></div>
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="search-box" style="flex:1">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchTasks" placeholder="Search tasks..." oninput="filterTasks()">
+        </div>
+        <select class="filter-select" id="filterTaskStatus" onchange="filterTasks()">
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="in-progress">In Progress</option>
+          <option value="completed">Completed</option>
+        </select>
+        <select class="filter-select" id="filterTaskPriority" onchange="filterTasks()">
+          <option value="">All Priorities</option>
+          <option value="urgent">Urgent</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+        <select class="filter-select" id="filterTaskUser" onchange="filterTasks()">
+          <option value="">All Users</option>
+        </select>
+      </div>
+      <!-- Task list -->
+      <div id="taskCount" class="text-muted text-sm mb-3">Loading...</div>
+      <div id="taskList"></div>
+    </main>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modal"></div></div>
+<div class="toast-container" id="toastContainer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/tasks.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    initTasks();
+    const sel = document.getElementById('filterTaskUser');
+    if (sel) {
+      DB.getAll('users').filter(u=>u.role!=='viewer').forEach(u => {
+        const o = document.createElement('option');
+        o.value = u.id; o.textContent = u.name; sel.appendChild(o);
+      });
+    }
+  });
+</script>
+</body>
+</html>

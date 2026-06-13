@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activities — NexusCRM</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-wrapper">
+    <header class="topbar" id="topbar"></header>
+    <main class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Activity Timeline</h1>
+          <p class="page-subtitle">Complete log of all CRM activities</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" onclick="openLogActivity()"><i class="fas fa-plus"></i> Log Activity</button>
+        </div>
+      </div>
+      <!-- Filter bar -->
+      <div class="filters-bar">
+        <div class="search-box" style="flex:1">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchActivities" placeholder="Search activities..." oninput="filterActivities()">
+        </div>
+        <select class="filter-select" id="filterActType" onchange="filterActivities()">
+          <option value="">All Types</option>
+          <option value="call">Calls</option>
+          <option value="meeting">Meetings</option>
+          <option value="email">Emails</option>
+          <option value="note">Notes</option>
+          <option value="status_update">Status Updates</option>
+          <option value="task_completed">Tasks Completed</option>
+        </select>
+        <select class="filter-select" id="filterActUser" onchange="filterActivities()">
+          <option value="">All Users</option>
+        </select>
+      </div>
+      <div id="activityCount" class="text-muted text-sm mb-3"></div>
+      <div class="card"><div class="card-body" id="activityTimeline"></div></div>
+    </main>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modal"></div></div>
+<div class="toast-container" id="toastContainer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  const typeColors = { call:'primary', meeting:'success', email:'info', note:'warning', status_update:'secondary', task_completed:'success', customer_created:'accent', lead_created:'info', deal_created:'primary' };
+
+  function initActivities() {
+    initApp('Activities');
+    const sel = document.getElementById('filterActUser');
+    if (sel) DB.getAll('users').forEach(u => {
+      const o = document.createElement('option'); o.value = u.id; o.textContent = u.name; sel.appendChild(o);
+    });
+    filterActivities();
+  }
+
+  function filterActivities() {
+    const search = document.getElementById('searchActivities')?.value.toLowerCase() || '';
+    const type = document.getElementById('filterActType')?.value || '';
+    const userId = document.getElementById('filterActUser')?.value || '';
+    let activities = DB.getAll('activities');
+    if (search) activities = activities.filter(a => a.description.toLowerCase().includes(search) || a.createdByName.toLowerCase().includes(search));
+    if (type) activities = activities.filter(a => a.type === type);
+    if (userId) activities = activities.filter(a => a.createdBy == userId);
+    activities.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    renderActivities(activities);
+  }
+
+  function renderActivities(activities) {
+    const el = document.getElementById('activityTimeline');
+    const countEl = document.getElementById('activityCount');
+    if (countEl) countEl.textContent = activities.length + ' activities';
+    if (!el) return;
+    if (!activities.length) {
+      el.innerHTML = '<div class="empty-state"><i class="fas fa-stream"></i><h3>No activities</h3><p>Activities will appear here as you use the CRM</p></div>'; return;
+    }
+    // Group by date
+    const groups = {};
+    activities.forEach(a => {
+      const date = a.createdAt.split('T')[0];
+      if (!groups[date]) groups[date] = [];
+      groups[date].push(a);
+    });
+    el.innerHTML = Object.keys(groups).sort().reverse().map(date => `
+      <div style="margin-bottom:24px">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border)">${formatDate(date)}</div>
+        <div class="timeline">
+          ${groups[date].map(a => `
+            <div class="timeline-item fade-in">
+              <div class="timeline-icon-wrap">
+                <div class="timeline-icon" style="background:var(--${typeColors[a.type]||'info'}-bg);color:var(--${typeColors[a.type]||'info'})">
+                  <i class="fas ${a.icon||'fa-circle'}"></i>
+                </div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <div>
+                    <span class="timeline-title">${escapeHtml(a.createdByName)}</span>
+                    ${a.relatedTo ? `<span style="font-size:0.75rem;color:var(--text-muted);margin-left:8px">· ${a.relatedTo.type}: ${escapeHtml(a.relatedTo.name||'')}</span>` : ''}
+                  </div>
+                  <span class="timeline-time">${formatDate(a.createdAt, true)}</span>
+                </div>
+                <div class="timeline-desc">${escapeHtml(a.description)}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`).join('');
+  }
+
+  function openLogActivity() {
+    const customers = DB.getAll('customers');
+    const leads = DB.getAll('leads');
+    const deals = DB.getAll('deals');
+    showModal({
+      title: 'Log Activity',
+      body: `
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Activity Type</label>
+            <select class="form-select" id="actType">
+              <option value="call">📞 Call</option>
+              <option value="meeting">👥 Meeting</option>
+              <option value="email">📧 Email</option>
+              <option value="note">📝 Note</option>
+              <option value="status_update">🔄 Status Update</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Related To</label>
+            <select class="form-select" id="actRelType" onchange="updateActRelSelect()">
+              <option value="">None</option>
+              <option value="customer">Customer</option>
+              <option value="lead">Lead</option>
+              <option value="deal">Deal</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" id="actRelGroup" style="display:none">
+          <label class="form-label">Select Record</label>
+          <select class="form-select" id="actRelId"></select>
+        </div>
+        <div class="form-group"><label class="form-label required">Description</label>
+          <textarea class="form-textarea" id="actDesc" placeholder="Describe what happened..."></textarea>
+        </div>`,
+      footer: `<button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+               <button class="btn btn-primary" onclick="saveNewActivity()"><i class="fas fa-plus"></i> Log Activity</button>`
+    });
+    window._actRelData = { customers, leads, deals };
+  }
+
+  function updateActRelSelect() {
+    const type = document.getElementById('actRelType')?.value;
+    const group = document.getElementById('actRelGroup');
+    const sel = document.getElementById('actRelId');
+    if (!type) { group.style.display = 'none'; return; }
+    group.style.display = 'block';
+    const data = window._actRelData || {};
+    const items = data[type + 's'] || [];
+    sel.innerHTML = '<option value="">Select...</option>' + items.map(i => `<option value="${i.id}">${escapeHtml(i.name)}</option>`).join('');
+  }
+
+  function saveNewActivity() {
+    const type = document.getElementById('actType')?.value;
+    const desc = document.getElementById('actDesc')?.value.trim();
+    if (!desc) { showToast('Please enter a description', 'error'); return; }
+    const relType = document.getElementById('actRelType')?.value;
+    const relId = document.getElementById('actRelId')?.value;
+    let relatedTo = null;
+    if (relType && relId) {
+      const data = window._actRelData || {};
+      const item = (data[relType + 's'] || []).find(i => i.id == relId);
+      relatedTo = { type: relType, id: parseInt(relId), name: item ? item.name : '' };
+    }
+    logActivity(type, desc, relatedTo);
+    closeModal();
+    filterActivities();
+    showToast('Activity logged', 'success');
+  }
+
+  document.addEventListener('DOMContentLoaded', initActivities);
+</script>
+</body>
+</html>

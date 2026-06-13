@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account — NexusCRM</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="auth-layout">
+    <div class="auth-brand">
+      <div class="auth-brand-logo">
+        <div class="nav-logo-icon" style="width:40px;height:40px;font-size:18px">N</div>
+        <div class="nav-logo-text" style="color:#fff;font-size:1.3rem">Nexus<span>CRM</span></div>
+      </div>
+      <h2 class="auth-brand-title">Start Your Free<br>CRM Journey</h2>
+      <p class="auth-brand-subtitle">Create your account in seconds and get instant access to the full NexusCRM platform — no credit card required.</p>
+      <div class="auth-features">
+        <div class="auth-feature"><div class="auth-feature-icon"><i class="fas fa-check"></i></div><span class="auth-feature-text">Free forever plan available</span></div>
+        <div class="auth-feature"><div class="auth-feature-icon"><i class="fas fa-check"></i></div><span class="auth-feature-text">All features unlocked for 14 days</span></div>
+        <div class="auth-feature"><div class="auth-feature-icon"><i class="fas fa-check"></i></div><span class="auth-feature-text">No credit card required</span></div>
+        <div class="auth-feature"><div class="auth-feature-icon"><i class="fas fa-check"></i></div><span class="auth-feature-text">Set up in under 2 minutes</span></div>
+      </div>
+    </div>
+    <div class="auth-form-panel">
+      <div class="auth-form-card">
+        <h2 class="auth-form-title">Create Account</h2>
+        <p class="auth-form-subtitle">Fill in your details to get started with NexusCRM</p>
+        <form id="registerForm" onsubmit="handleRegister(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">First Name</label>
+              <input class="form-input" type="text" id="regFirst" placeholder="John" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label required">Last Name</label>
+              <input class="form-input" type="text" id="regLast" placeholder="Smith" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Work Email</label>
+            <div class="input-group">
+              <span class="input-prefix"><i class="fas fa-envelope"></i></span>
+              <input class="form-input" type="email" id="regEmail" placeholder="you@company.com" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Password</label>
+            <div class="input-group">
+              <span class="input-prefix"><i class="fas fa-lock"></i></span>
+              <input class="form-input" type="password" id="regPassword" placeholder="Min. 6 characters" required minlength="6">
+              <span class="input-suffix" style="cursor:pointer" onclick="toggleRegPassword()"><i class="fas fa-eye" id="regEye"></i></span>
+            </div>
+            <div class="form-hint">Use at least 6 characters with a mix of letters and numbers</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">Confirm Password</label>
+            <input class="form-input" type="password" id="regConfirm" placeholder="Repeat your password" required>
+          </div>
+          <div class="form-check mb-3">
+            <input type="checkbox" id="agreeTerms" required>
+            <label class="form-check-label">I agree to the <a href="#" style="color:var(--primary)">Terms of Service</a> and <a href="#" style="color:var(--primary)">Privacy Policy</a></label>
+          </div>
+          <div id="regError" style="display:none" class="form-error mb-3"><i class="fas fa-exclamation-circle"></i> <span></span></div>
+          <button type="submit" class="btn btn-primary w-full btn-lg" id="regBtn">
+            <i class="fas fa-user-plus"></i> Create Account
+          </button>
+        </form>
+        <div class="auth-footer">
+          Already have an account? <a href="login.html">Sign in</a>
+        </div>
+        <div class="auth-footer" style="margin-top:8px">
+          <a href="index.html" style="color:var(--text-muted)"><i class="fas fa-arrow-left"></i> Back to homepage</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (Auth.isAuthenticated()) window.location.href = 'dashboard.html';
+    });
+
+    function toggleRegPassword() {
+      const input = document.getElementById('regPassword');
+      const eye = document.getElementById('regEye');
+      if (input.type === 'password') { input.type = 'text'; eye.className = 'fas fa-eye-slash'; }
+      else { input.type = 'password'; eye.className = 'fas fa-eye'; }
+    }
+
+    function handleRegister(e) {
+      e.preventDefault();
+      const first = document.getElementById('regFirst').value.trim();
+      const last = document.getElementById('regLast').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const confirm = document.getElementById('regConfirm').value;
+      const errEl = document.getElementById('regError');
+      const btn = document.getElementById('regBtn');
+
+      errEl.style.display = 'none';
+
+      if (password !== confirm) {
+        errEl.style.display = 'flex';
+        errEl.querySelector('span').textContent = 'Passwords do not match.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Creating account...';
+
+      setTimeout(() => {
+        const result = Auth.register({ name: first + ' ' + last, email, password });
+        if (result.success) {
+          // Auto-login after register
+          Auth.login(email, password);
+          showToast('Account created! Welcome to NexusCRM!', 'success');
+          setTimeout(() => window.location.href = 'dashboard.html', 700);
+        } else {
+          errEl.style.display = 'flex';
+          errEl.querySelector('span').textContent = result.error;
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+        }
+      }, 600);
+    }
+  </script>
+</body>
+</html>

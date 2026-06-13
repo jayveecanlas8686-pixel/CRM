@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — NexusCRM</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-wrapper">
+    <header class="topbar" id="topbar"></header>
+    <main class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title"><i class="fas fa-shield-alt" style="color:var(--danger)"></i> Admin Dashboard</h1>
+          <p class="page-subtitle">Platform management and system overview</p>
+        </div>
+        <div class="page-actions">
+          <span class="badge badge-danger"><i class="fas fa-crown"></i> Admin Access</span>
+        </div>
+      </div>
+
+      <!-- Platform Stats -->
+      <div class="admin-grid mb-6" id="adminStats"></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+        <!-- All Users -->
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title"><i class="fas fa-users" style="color:var(--primary)"></i> All Users</h4>
+            <button class="btn btn-primary btn-sm" onclick="window.location.href='team.html'"><i class="fas fa-arrow-right"></i> Manage</button>
+          </div>
+          <div class="card-body" id="adminUserList"></div>
+        </div>
+        <!-- Activity Logs -->
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title"><i class="fas fa-clipboard-list" style="color:var(--warning)"></i> System Activity</h4>
+            <button class="btn btn-ghost btn-sm" onclick="window.location.href='activities.html'">View All</button>
+          </div>
+          <div class="card-body" id="adminActivityLog"></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:20px">
+        <!-- Data Overview -->
+        <div class="card">
+          <div class="card-header"><h4 class="card-title">Data Overview</h4></div>
+          <div class="card-body" id="dataOverview"></div>
+        </div>
+        <!-- Subscription Info -->
+        <div class="card">
+          <div class="card-header"><h4 class="card-title">Subscription Status</h4></div>
+          <div class="card-body">
+            <div style="text-align:center;padding:16px">
+              <div style="font-size:1.5rem;font-weight:800;color:var(--primary);margin-bottom:4px">Business Plan</div>
+              <div class="badge badge-success mb-3">Active</div>
+              <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px">Renews on December 31, 2026</div>
+              <div style="display:flex;flex-direction:column;gap:8px;text-align:left">
+                <div class="flex items-center gap-2 text-sm"><i class="fas fa-check" style="color:var(--success)"></i> Unlimited users</div>
+                <div class="flex items-center gap-2 text-sm"><i class="fas fa-check" style="color:var(--success)"></i> All features unlocked</div>
+                <div class="flex items-center gap-2 text-sm"><i class="fas fa-check" style="color:var(--success)"></i> Priority support</div>
+                <div class="flex items-center gap-2 text-sm"><i class="fas fa-check" style="color:var(--success)"></i> API access</div>
+              </div>
+              <button class="btn btn-outline w-full mt-4" onclick="window.location.href='pricing.html'">Manage Plan</button>
+            </div>
+          </div>
+        </div>
+        <!-- Quick Admin Actions -->
+        <div class="card">
+          <div class="card-header"><h4 class="card-title">Admin Actions</h4></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-outline" onclick="window.location.href='team.html'"><i class="fas fa-user-plus"></i> Add Team Member</button>
+            <button class="btn btn-outline" onclick="window.location.href='settings.html'"><i class="fas fa-cog"></i> System Settings</button>
+            <button class="btn btn-outline" onclick="window.location.href='reports.html'"><i class="fas fa-chart-bar"></i> Full Reports</button>
+            <button class="btn btn-outline" onclick="exportSystemData()"><i class="fas fa-download"></i> Export All Data</button>
+            <button class="btn btn-danger" onclick="confirmSystemReset()"><i class="fas fa-undo"></i> Reset Demo Data</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Usage Statistics -->
+      <div class="card">
+        <div class="card-header"><h4 class="card-title">Platform Usage Statistics</h4></div>
+        <div class="card-body" id="usageStats"></div>
+      </div>
+    </main>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modal"></div></div>
+<div class="toast-container" id="toastContainer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  function initAdmin() {
+    Auth.requireRole('admin');
+    initApp('Admin Dashboard');
+    renderAdminStats();
+    renderAdminUsers();
+    renderAdminActivity();
+    renderDataOverview();
+    renderUsageStats();
+  }
+
+  function renderAdminStats() {
+    const users = DB.getAll('users');
+    const customers = DB.getAll('customers');
+    const leads = DB.getAll('leads');
+    const deals = DB.getAll('deals');
+    const tasks = DB.getAll('tasks');
+    const activities = DB.getAll('activities');
+    const el = document.getElementById('adminStats');
+    if (!el) return;
+    el.innerHTML = `
+      <div class="stat-card"><div class="stat-icon primary"><i class="fas fa-users"></i></div><div class="stat-body"><div class="stat-label">Total Users</div><div class="stat-value">${users.length}</div></div></div>
+      <div class="stat-card"><div class="stat-icon success"><i class="fas fa-building"></i></div><div class="stat-body"><div class="stat-label">Customers</div><div class="stat-value">${customers.length}</div></div></div>
+      <div class="stat-card"><div class="stat-icon warning"><i class="fas fa-user-plus"></i></div><div class="stat-body"><div class="stat-label">Leads</div><div class="stat-value">${leads.length}</div></div></div>
+      <div class="stat-card"><div class="stat-icon accent"><i class="fas fa-handshake"></i></div><div class="stat-body"><div class="stat-label">Deals</div><div class="stat-value">${deals.length}</div></div></div>
+      <div class="stat-card"><div class="stat-icon secondary"><i class="fas fa-tasks"></i></div><div class="stat-body"><div class="stat-label">Tasks</div><div class="stat-value">${tasks.length}</div></div></div>
+      <div class="stat-card"><div class="stat-icon info"><i class="fas fa-stream"></i></div><div class="stat-body"><div class="stat-label">Activities Logged</div><div class="stat-value">${activities.length}</div></div></div>`;
+  }
+
+  function renderAdminUsers() {
+    const el = document.getElementById('adminUserList');
+    if (!el) return;
+    const users = DB.getAll('users');
+    el.innerHTML = `<div class="table-container"><table class="table">
+      <thead><tr><th>User</th><th>Role</th><th>Status</th><th>Last Login</th></tr></thead>
+      <tbody>${users.map(u => `<tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="avatar avatar-sm" style="background:${avatarColor(u.name)}">${avatarInitials(u.name).toUpperCase()}</div>
+            <div>
+              <div style="font-weight:600;font-size:0.85rem">${escapeHtml(u.name)}</div>
+              <div style="font-size:0.72rem;color:var(--text-muted)">${escapeHtml(u.email)}</div>
+            </div>
+          </div>
+        </td>
+        <td>${statusBadge(u.role)}</td>
+        <td><span class="badge ${u.status==='active'?'badge-success':'badge-gray'}">${capitalize(u.status)}</span></td>
+        <td style="font-size:0.78rem;color:var(--text-muted)">${u.lastLogin ? formatDate(u.lastLogin) : 'Never'}</td>
+      </tr>`).join('')}</tbody></table></div>`;
+  }
+
+  function renderAdminActivity() {
+    const el = document.getElementById('adminActivityLog');
+    if (!el) return;
+    const activities = DB.getAll('activities').sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt)).slice(0, 8);
+    const typeColors = { call:'primary', meeting:'success', email:'info', note:'warning', status_update:'secondary', task_completed:'success' };
+    if (!activities.length) { el.innerHTML = '<div class="empty-state" style="padding:20px"><p>No activities yet</p></div>'; return; }
+    el.innerHTML = activities.map(a => `
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px">
+        <div style="width:28px;height:28px;border-radius:8px;background:var(--${typeColors[a.type]||'info'}-bg);color:var(--${typeColors[a.type]||'info'});display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0"><i class="fas ${a.icon||'fa-circle'}"></i></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.8rem;font-weight:600">${escapeHtml(a.createdByName)}</div>
+          <div style="font-size:0.75rem;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(a.description.substring(0,60))}...</div>
+          <div style="font-size:0.68rem;color:var(--text-muted)">${formatDateRelative(a.createdAt)}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderDataOverview() {
+    const el = document.getElementById('dataOverview');
+    if (!el) return;
+    const data = {
+      customers: DB.getAll('customers').length,
+      leads: DB.getAll('leads').length,
+      deals: DB.getAll('deals').length,
+      tasks: DB.getAll('tasks').length,
+      activities: DB.getAll('activities').length,
+      emails: DB.getAll('emails').length,
+      notes: DB.getAll('notes').length,
+      automations: DB.getAll('automations').length
+    };
+    el.innerHTML = Object.entries(data).map(([k, v]) => `
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--divider)">
+        <span style="font-size:0.85rem;text-transform:capitalize">${k}</span>
+        <span style="font-weight:700;color:var(--primary)">${v}</span>
+      </div>`).join('');
+  }
+
+  function renderUsageStats() {
+    const el = document.getElementById('usageStats');
+    if (!el) return;
+    const users = DB.getAll('users');
+    const deals = DB.getAll('deals');
+    const tasks = DB.getAll('tasks');
+    const customers = DB.getAll('customers');
+    el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <div>
+        <div style="font-size:0.85rem;font-weight:700;margin-bottom:12px">Activity by User</div>
+        ${users.map(u => {
+          const acts = DB.getAll('activities').filter(a => a.createdBy == u.id).length;
+          const max = Math.max(...users.map(u2 => DB.getAll('activities').filter(a => a.createdBy == u2.id).length), 1);
+          return `<div class="horizontal-bar" style="margin-bottom:8px">
+            <div style="width:80px;font-size:0.75rem;color:var(--text-secondary);text-align:right;flex-shrink:0">${u.name.split(' ')[0]}</div>
+            <div class="horizontal-bar-track"><div class="horizontal-bar-fill" style="width:${Math.round((acts/max)*100)}%;background:var(--primary)"></div></div>
+            <div style="width:30px;font-size:0.75rem;font-weight:700">${acts}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div>
+        <div style="font-size:0.85rem;font-weight:700;margin-bottom:12px">Deal Win Rate by User</div>
+        ${users.filter(u=>u.role!=='viewer').map(u => {
+          const userDeals = deals.filter(d=>d.owner==u.id);
+          const won = userDeals.filter(d=>d.stage==='won').length;
+          const rate = userDeals.length ? Math.round((won/userDeals.length)*100) : 0;
+          return `<div class="horizontal-bar" style="margin-bottom:8px">
+            <div style="width:80px;font-size:0.75rem;color:var(--text-secondary);text-align:right;flex-shrink:0">${u.name.split(' ')[0]}</div>
+            <div class="horizontal-bar-track"><div class="horizontal-bar-fill" style="width:${rate}%;background:var(--success)"></div></div>
+            <div style="width:40px;font-size:0.75rem;font-weight:700">${rate}%</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div>
+        <div style="font-size:0.85rem;font-weight:700;margin-bottom:12px">Customer Distribution</div>
+        ${users.filter(u=>u.role!=='viewer').map(u => {
+          const cust = customers.filter(c=>c.owner==u.id).length;
+          const max = Math.max(...users.map(u2=>customers.filter(c=>c.owner==u2.id).length),1);
+          return `<div class="horizontal-bar" style="margin-bottom:8px">
+            <div style="width:80px;font-size:0.75rem;color:var(--text-secondary);text-align:right;flex-shrink:0">${u.name.split(' ')[0]}</div>
+            <div class="horizontal-bar-track"><div class="horizontal-bar-fill" style="width:${Math.round((cust/max)*100)}%;background:var(--accent)"></div></div>
+            <div style="width:30px;font-size:0.75rem;font-weight:700">${cust}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  function exportSystemData() {
+    const data = {};
+    ['users','customers','leads','deals','tasks','activities','emails','automations'].forEach(k => data[k] = DB.getAll(k));
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'nexuscrm-system-export.json'; a.click();
+    showToast('System data exported', 'success');
+  }
+
+  function confirmSystemReset() {
+    showConfirm('This will reset ALL data to demo state. Are you sure?', () => {
+      resetData();
+      showToast('System reset to demo data', 'success');
+      setTimeout(() => location.reload(), 800);
+    }, { danger: true, confirmText: 'Reset System', title: 'Confirm System Reset' });
+  }
+
+  document.addEventListener('DOMContentLoaded', initAdmin);
+</script>
+</body>
+</html>

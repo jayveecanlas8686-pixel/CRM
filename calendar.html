@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar — NexusCRM</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-wrapper">
+    <header class="topbar" id="topbar"></header>
+    <main class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Calendar</h1>
+          <p class="page-subtitle">View and manage your scheduled tasks</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-outline" onclick="goToToday()"><i class="fas fa-calendar-day"></i> Today</button>
+          <a href="tasks.html" class="btn btn-outline"><i class="fas fa-list"></i> List View</a>
+          <button class="btn btn-primary" onclick="openAddTask()"><i class="fas fa-plus"></i> Add Task</button>
+        </div>
+      </div>
+      <div class="calendar-wrapper">
+        <div class="calendar-header">
+          <div class="calendar-nav">
+            <button class="btn btn-ghost btn-icon" onclick="prevMonth()"><i class="fas fa-chevron-left"></i></button>
+            <h3 class="calendar-month" id="calendarMonth">Loading...</h3>
+            <button class="btn btn-ghost btn-icon" onclick="nextMonth()"><i class="fas fa-chevron-right"></i></button>
+          </div>
+          <div style="display:flex;gap:12px;font-size:0.78rem">
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:var(--primary-bg)"></span> Task</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:var(--danger-bg)"></span> Urgent/High</span>
+          </div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+      <!-- Upcoming tasks panel -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h4 class="card-title"><i class="fas fa-clock" style="color:var(--warning)"></i> Upcoming This Week</h4>
+          <a href="tasks.html" class="btn btn-ghost btn-sm">View All</a>
+        </div>
+        <div class="card-body" id="weekTasks"></div>
+      </div>
+    </main>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modal"></div></div>
+<div class="toast-container" id="toastContainer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/tasks.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    initCalendar();
+    loadWeekTasks();
+  });
+
+  function loadWeekTasks() {
+    const el = document.getElementById('weekTasks');
+    if (!el) return;
+    const today = new Date();
+    const weekEnd = new Date(today.getTime() + 7 * 86400000);
+    const todayStr = today.toISOString().split('T')[0];
+    const weekEndStr = weekEnd.toISOString().split('T')[0];
+    const tasks = DB.getAll('tasks')
+      .filter(t => t.status !== 'completed' && t.dueDate >= todayStr && t.dueDate <= weekEndStr)
+      .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+    if (!tasks.length) { el.innerHTML = '<div class="empty-state" style="padding:24px"><i class="fas fa-calendar-check"></i><p>No tasks this week!</p></div>'; return; }
+    el.innerHTML = `<div class="table-container"><table class="table"><thead><tr><th>Task</th><th>Due</th><th>Priority</th><th>Assigned</th><th>Status</th></tr></thead><tbody>
+      ${tasks.map(t => `<tr>
+        <td style="font-weight:600">${escapeHtml(t.title)}</td>
+        <td>${formatDate(t.dueDate)}</td>
+        <td>${priorityBadge(t.priority)}</td>
+        <td>${escapeHtml(getUserName(t.assignedTo))}</td>
+        <td>${statusBadge(t.status)}</td>
+      </tr>`).join('')}
+    </tbody></table></div>`;
+  }
+</script>
+</body>
+</html>

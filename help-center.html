@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Help Center — NexusCRM</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <nav class="public-nav">
+    <div class="nav-logo"><div class="nav-logo-icon">N</div><div class="nav-logo-text">Nexus<span>CRM</span></div></div>
+    <div class="nav-links"><a href="index.html">Home</a><a href="features.html">Features</a><a href="pricing.html">Pricing</a></div>
+    <div class="nav-cta">
+      <a href="login.html" class="btn btn-outline btn-sm">Sign In</a>
+      <a href="register.html" class="btn btn-primary btn-sm">Get Started</a>
+    </div>
+  </nav>
+
+  <!-- Hero Search -->
+  <div class="help-search-hero">
+    <h1>How can we help you?</h1>
+    <p>Search our knowledge base or browse topics below.</p>
+    <div class="help-search-box">
+      <i class="fas fa-search" style="color:#94a3b8"></i>
+      <input type="text" id="helpSearch" placeholder="Search articles..." oninput="searchHelp(this.value)">
+      <button class="btn btn-primary" onclick="searchHelp(document.getElementById('helpSearch').value)">Search</button>
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <section style="padding:48px 40px;max-width:1100px;margin:0 auto">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:48px">
+      <div onclick="filterFaq('Getting Started')" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;text-align:center;cursor:pointer;transition:all 0.2s" onmouseenter="this.style.boxShadow='var(--shadow-md)';this.style.borderColor='var(--primary)'" onmouseleave="this.style.boxShadow='';this.style.borderColor='var(--border)'">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--primary-bg);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 12px"><i class="fas fa-rocket"></i></div>
+        <div style="font-weight:700;margin-bottom:4px">Getting Started</div>
+        <div style="font-size:0.78rem;color:var(--text-muted)">Setup guides and first steps</div>
+      </div>
+      <div onclick="filterFaq('Customers')" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;text-align:center;cursor:pointer;transition:all 0.2s" onmouseenter="this.style.boxShadow='var(--shadow-md)';this.style.borderColor='var(--primary)'" onmouseleave="this.style.boxShadow='';this.style.borderColor='var(--border)'">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--primary-bg);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 12px"><i class="fas fa-building"></i></div>
+        <div style="font-weight:700;margin-bottom:4px">Customers</div>
+        <div style="font-size:0.78rem;color:var(--text-muted)">Managing customer records</div>
+      </div>
+      <div onclick="filterFaq('Leads')" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;text-align:center;cursor:pointer;transition:all 0.2s" onmouseenter="this.style.boxShadow='var(--shadow-md)';this.style.borderColor='var(--primary)'" onmouseleave="this.style.boxShadow='';this.style.borderColor='var(--border)'">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--primary-bg);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 12px"><i class="fas fa-user-plus"></i></div>
+        <div style="font-weight:700;margin-bottom:4px">Leads</div>
+        <div style="font-size:0.78rem;color:var(--text-muted)">Lead tracking and conversion</div>
+      </div>
+      <div onclick="filterFaq('Pipeline')" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;text-align:center;cursor:pointer;transition:all 0.2s" onmouseenter="this.style.boxShadow='var(--shadow-md)';this.style.borderColor='var(--primary)'" onmouseleave="this.style.boxShadow='';this.style.borderColor='var(--border)'">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--primary-bg);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 12px"><i class="fas fa-filter"></i></div>
+        <div style="font-weight:700;margin-bottom:4px">Pipeline</div>
+        <div style="font-size:0.78rem;color:var(--text-muted)">Deal stages and pipeline setup</div>
+      </div>
+      <div onclick="filterFaq('Automation')" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;text-align:center;cursor:pointer;transition:all 0.2s" onmouseenter="this.style.boxShadow='var(--shadow-md)';this.style.borderColor='var(--primary)'" onmouseleave="this.style.boxShadow='';this.style.borderColor='var(--border)'">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--primary-bg);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 12px"><i class="fas fa-bolt"></i></div>
+        <div style="font-weight:700;margin-bottom:4px">Automation</div>
+        <div style="font-size:0.78rem;color:var(--text-muted)">Building workflow automations</div>
+      </div>
+      <div onclick="filterFaq('Reports')" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;text-align:center;cursor:pointer;transition:all 0.2s" onmouseenter="this.style.boxShadow='var(--shadow-md)';this.style.borderColor='var(--primary)'" onmouseleave="this.style.boxShadow='';this.style.borderColor='var(--border)'">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--primary-bg);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 12px"><i class="fas fa-chart-bar"></i></div>
+        <div style="font-weight:700;margin-bottom:4px">Reports</div>
+        <div style="font-size:0.78rem;color:var(--text-muted)">Analytics and data export</div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:20px" id="faqTitle">Frequently Asked Questions</h2>
+    <div class="faq-grid" id="faqGrid">
+      <div class="faq-card" data-category="Getting Started">
+        <div style="padding:14px 18px;background:var(--bg-secondary);font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--primary)">Getting Started</div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">How do I sign in?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Navigate to the login page and enter your email and password. Use the demo accounts for testing: admin@example.com, manager@example.com, or agent@example.com — all with password123.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">How do I add my first customer?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Go to Customers → click "Add Customer" → fill in the company name, contact person, and email → click Save. The customer will appear in your customer list.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">What are the different user roles?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Admin: full access. Sales Manager: manage team, customers, leads, deals. Sales Agent: manage own customers and leads. Viewer: read-only access.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">How do I reset the demo data?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Go to Settings → Data Management → click "Reset to Demo Data". This restores all sample records.</div></div>
+      </div>
+      <div class="faq-card" data-category="Customers">
+        <div style="padding:14px 18px;background:var(--bg-secondary);font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--primary)">Customers</div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">How do I view customer details?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Click the eye icon in the customer list, or navigate to customer-details.html?id=X. You'll see their full profile, deals, tasks, notes, and activities.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">Can I link a deal to a customer?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Yes! When creating or editing a deal, select the customer from the dropdown. It will appear in the customer's "Deals" tab.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">How do I add notes to a customer?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Open the customer details page, click the "Notes" tab, type your note, and click "Add Note". Notes are timestamped and attributed to your user.</div></div>
+      </div>
+      <div class="faq-card" data-category="Leads">
+        <div style="padding:14px 18px;background:var(--bg-secondary);font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--primary)">Leads</div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">What is a lead score?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Lead score (0-100) represents how qualified or likely to convert a lead is. Higher score = hotter lead. You can manually set this when adding/editing a lead.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">How do I convert a lead to a customer?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">In the leads list, click the green user-check icon on any active lead. Confirm the conversion and a new customer record will be created automatically.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">What lead sources are available?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Website, LinkedIn, Referral, Cold Call, Event, Email Campaign, Social Media, and Other.</div></div>
+      </div>
+      <div class="faq-card" data-category="Pipeline">
+        <div style="padding:14px 18px;background:var(--bg-secondary);font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--primary)">Pipeline</div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">How does the Kanban pipeline work?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Deals are organized in columns by stage. Drag a deal card to a different column to move it. The probability updates automatically based on the stage.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">Can I customize pipeline stages?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Yes! Go to Settings → Pipeline Stages to rename stages, adjust probabilities, and change colors.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">What is weighted revenue forecast?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">It's the deal value multiplied by its probability percentage. E.g., a $100K deal at 60% probability = $60K weighted forecast.</div></div>
+      </div>
+      <div class="faq-card" data-category="Automation">
+        <div style="padding:14px 18px;background:var(--bg-secondary);font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--primary)">Automation</div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">How do I create an automation rule?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Go to Automation → click "Create Rule" → select a trigger event and value → choose an action and template → enable the rule → save.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">When do automations run?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Automations fire when the trigger condition is met during normal CRM operations (e.g., changing a lead status, moving a deal stage). You can also run a manual simulation.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">What actions can automations perform?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Create follow-up tasks, log activity notes, update task priority, or trigger email notifications.</div></div>
+      </div>
+      <div class="faq-card" data-category="Reports">
+        <div style="padding:14px 18px;background:var(--bg-secondary);font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--primary)">Reports</div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">How do I export a report?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">In Reports, click any "Export CSV" button to download that report as a spreadsheet-compatible CSV file.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">How is the revenue forecast calculated?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">For each active deal: value × probability %. These are summed to give the weighted pipeline forecast.</div></div>
+        <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">Can I filter reports by date?<i class="fas fa-chevron-down faq-chevron"></i></div><div class="faq-answer">Yes! Use the date range pickers at the top of the Reports page and click Apply to filter the data.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Form -->
+  <section style="background:var(--bg-secondary);padding:60px 40px">
+    <div style="max-width:600px;margin:0 auto;text-align:center">
+      <h2 style="font-size:1.6rem;font-weight:800;margin-bottom:8px">Still Need Help?</h2>
+      <p style="color:var(--text-secondary);margin-bottom:32px">Send us a message and our support team will get back to you within 24 hours.</p>
+      <div class="card">
+        <div class="card-body">
+          <form id="supportForm" onsubmit="submitSupport(event)">
+            <div class="form-row">
+              <div class="form-group"><label class="form-label required">Your Name</label><input class="form-input" id="sName" placeholder="John Smith" required></div>
+              <div class="form-group"><label class="form-label required">Email</label><input class="form-input" id="sEmail" type="email" placeholder="you@company.com" required></div>
+            </div>
+            <div class="form-group"><label class="form-label required">Subject</label>
+              <select class="form-select" id="sSubject">
+                <option>Account & Login</option><option>Customer Management</option><option>Pipeline & Deals</option>
+                <option>Automation</option><option>Reports & Analytics</option><option>Billing</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label required">Message</label><textarea class="form-textarea" id="sMessage" placeholder="Describe your issue or question..." required></textarea></div>
+            <button type="submit" class="btn btn-primary w-full"><i class="fas fa-paper-plane"></i> Send Message</button>
+          </form>
+          <div id="supportSuccess" style="display:none;text-align:center;padding:24px">
+            <i class="fas fa-check-circle" style="font-size:2.5rem;color:var(--success);margin-bottom:12px;display:block"></i>
+            <h3>Message Sent!</h3>
+            <p style="color:var(--text-muted)">We'll get back to you within 24 hours.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="public-footer">
+    <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px">
+      <div class="nav-logo"><div class="nav-logo-icon">N</div><div class="nav-logo-text" style="color:#fff">Nexus<span>CRM</span></div></div>
+      <div style="display:flex;gap:20px"><a href="index.html" style="color:#64748b;font-size:0.85rem">Home</a><a href="features.html" style="color:#64748b;font-size:0.85rem">Features</a><a href="pricing.html" style="color:#64748b;font-size:0.85rem">Pricing</a></div>
+    </div>
+  </footer>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    function toggleFaq(el) {
+      const answer = el.nextElementSibling;
+      const chevron = el.querySelector('.faq-chevron');
+      const isOpen = answer.classList.contains('open');
+      // Close all
+      document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
+      document.querySelectorAll('.faq-chevron').forEach(c => c.classList.remove('open'));
+      if (!isOpen) { answer.classList.add('open'); chevron.classList.add('open'); }
+    }
+
+    function searchHelp(q) {
+      const cards = document.querySelectorAll('.faq-card');
+      q = q.toLowerCase().trim();
+      if (!q) { cards.forEach(c => c.style.display = ''); return; }
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(q) ? '' : 'none';
+      });
+    }
+
+    function filterFaq(category) {
+      const cards = document.querySelectorAll('.faq-card');
+      const title = document.getElementById('faqTitle');
+      cards.forEach(c => {
+        c.style.display = c.getAttribute('data-category') === category ? '' : 'none';
+      });
+      if (title) title.textContent = category + ' — FAQ';
+      document.getElementById('faqGrid').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function submitSupport(e) {
+      e.preventDefault();
+      const inquiry = {
+        id: DB.nextId('helpInquiries'),
+        name: document.getElementById('sName').value.trim(),
+        email: document.getElementById('sEmail').value.trim(),
+        subject: document.getElementById('sSubject').value,
+        message: document.getElementById('sMessage').value.trim(),
+        status: 'open',
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+      DB.save('helpInquiries', inquiry);
+      document.getElementById('supportForm').style.display = 'none';
+      document.getElementById('supportSuccess').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

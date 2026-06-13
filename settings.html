@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — NexusCRM</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-wrapper">
+    <header class="topbar" id="topbar"></header>
+    <main class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Settings</h1>
+          <p class="page-subtitle">Configure your CRM workspace</p>
+        </div>
+      </div>
+      <div class="settings-layout">
+        <!-- Settings Nav -->
+        <div class="settings-nav">
+          <a href="#" class="active" onclick="showSection('company', this)"><i class="fas fa-building"></i> Company</a>
+          <a href="#" onclick="showSection('appearance', this)"><i class="fas fa-palette"></i> Appearance</a>
+          <a href="#" onclick="showSection('pipeline', this)"><i class="fas fa-filter"></i> Pipeline Stages</a>
+          <a href="#" onclick="showSection('notifications', this)"><i class="fas fa-bell"></i> Notifications</a>
+          <a href="#" onclick="showSection('account', this)"><i class="fas fa-user"></i> My Account</a>
+          <a href="#" onclick="showSection('data', this)"><i class="fas fa-database"></i> Data Management</a>
+        </div>
+        <!-- Settings Content -->
+        <div>
+          <!-- Company -->
+          <div class="settings-section active" id="section-company">
+            <div class="settings-card">
+              <h3>Company Profile</h3>
+              <p class="settings-desc">Basic information about your company</p>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Company Name</label><input class="form-input" id="sCompanyName"></div>
+                <div class="form-group"><label class="form-label">Company Email</label><input class="form-input" id="sCompanyEmail" type="email"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="sCompanyPhone"></div>
+                <div class="form-group"><label class="form-label">Currency</label>
+                  <select class="form-select" id="sCurrency">
+                    <option value="USD">USD ($)</option><option value="EUR">EUR (€)</option>
+                    <option value="GBP">GBP (£)</option><option value="JPY">JPY (¥)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group"><label class="form-label">Address</label><input class="form-input" id="sAddress"></div>
+              <button class="btn btn-primary" onclick="saveCompanySettings()"><i class="fas fa-save"></i> Save Company Info</button>
+            </div>
+          </div>
+          <!-- Appearance -->
+          <div class="settings-section" id="section-appearance">
+            <div class="settings-card">
+              <h3>Theme</h3>
+              <p class="settings-desc">Choose your preferred color scheme</p>
+              <div style="display:flex;gap:12px;margin-bottom:20px">
+                <div id="themeLight" style="padding:16px 24px;border-radius:10px;border:2px solid var(--primary);cursor:pointer;background:var(--bg-card);text-align:center" onclick="setTheme('light')">
+                  <i class="fas fa-sun" style="font-size:1.5rem;color:var(--warning);display:block;margin-bottom:6px"></i>
+                  <span style="font-weight:600">Light</span>
+                </div>
+                <div id="themeDark" style="padding:16px 24px;border-radius:10px;border:2px solid var(--border);cursor:pointer;background:var(--bg-card);text-align:center" onclick="setTheme('dark')">
+                  <i class="fas fa-moon" style="font-size:1.5rem;color:var(--secondary);display:block;margin-bottom:6px"></i>
+                  <span style="font-weight:600">Dark</span>
+                </div>
+              </div>
+            </div>
+            <div class="settings-card">
+              <h3>Brand Color</h3>
+              <p class="settings-desc">Customize the primary accent color</p>
+              <div class="color-swatches" id="colorSwatches"></div>
+            </div>
+          </div>
+          <!-- Pipeline Stages -->
+          <div class="settings-section" id="section-pipeline">
+            <div class="settings-card">
+              <h3>Pipeline Stages</h3>
+              <p class="settings-desc">Configure your deal pipeline stages and probabilities</p>
+              <div id="pipelineStagesList"></div>
+              <button class="btn btn-primary mt-3" onclick="savePipelineStages()"><i class="fas fa-save"></i> Save Pipeline</button>
+            </div>
+          </div>
+          <!-- Notifications -->
+          <div class="settings-section" id="section-notifications">
+            <div class="settings-card">
+              <h3>Notification Preferences</h3>
+              <p class="settings-desc">Choose what notifications to receive</p>
+              <div style="display:flex;flex-direction:column;gap:16px" id="notifSettings"></div>
+              <button class="btn btn-primary mt-4" onclick="saveNotifSettings()"><i class="fas fa-save"></i> Save Preferences</button>
+            </div>
+          </div>
+          <!-- Account -->
+          <div class="settings-section" id="section-account">
+            <div class="settings-card">
+              <h3>My Account</h3>
+              <p class="settings-desc">Update your personal information</p>
+              <div id="accountForm"></div>
+            </div>
+          </div>
+          <!-- Data -->
+          <div class="settings-section" id="section-data">
+            <div class="settings-card">
+              <h3>Data Management</h3>
+              <p class="settings-desc">Export or reset your CRM data</p>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div style="padding:16px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)">
+                  <h4 style="margin-bottom:6px">Export All Data</h4>
+                  <p class="text-sm text-secondary mb-3">Download all your CRM data as a JSON file for backup purposes.</p>
+                  <button class="btn btn-outline" onclick="exportAllData()"><i class="fas fa-download"></i> Export Data</button>
+                </div>
+                <div style="padding:16px;background:var(--danger-bg);border-radius:var(--radius);border:1px solid var(--danger)">
+                  <h4 style="color:var(--danger);margin-bottom:6px">Reset Demo Data</h4>
+                  <p class="text-sm text-secondary mb-3">This will restore all data to the original demo state. Your custom records will be lost.</p>
+                  <button class="btn btn-danger" onclick="confirmReset()"><i class="fas fa-undo"></i> Reset to Demo Data</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modal"></div></div>
+<div class="toast-container" id="toastContainer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  function initSettings() {
+    initApp('Settings');
+    loadAllSettings();
+  }
+
+  function showSection(id, link) {
+    document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.settings-nav a').forEach(a => a.classList.remove('active'));
+    document.getElementById('section-' + id)?.classList.add('active');
+    link.classList.add('active');
+    event.preventDefault();
+  }
+
+  function loadAllSettings() {
+    const s = DB.get('settings') || {};
+    const vals = {
+      sCompanyName: s.companyName || '', sCompanyEmail: s.companyEmail || '',
+      sCompanyPhone: s.companyPhone || '', sAddress: s.companyAddress || ''
+    };
+    Object.entries(vals).forEach(([id, val]) => {
+      const el = document.getElementById(id); if (el) el.value = val;
+    });
+    const curr = document.getElementById('sCurrency');
+    if (curr) curr.value = s.currency || 'USD';
+
+    // Theme toggle
+    const theme = s.theme || 'light';
+    const tl = document.getElementById('themeLight');
+    const td = document.getElementById('themeDark');
+    if (theme === 'dark') { if (tl) tl.style.borderColor='var(--border)'; if (td) td.style.borderColor='var(--primary)'; }
+
+    // Render color swatches
+    const swatchContainer = document.getElementById('colorSwatches');
+    if (swatchContainer && !swatchContainer.children.length) {
+      swatchContainer.innerHTML = [['#6366f1','Indigo'],['#8b5cf6','Purple'],['#0ea5e9','Blue'],['#22c55e','Green'],['#f59e0b','Amber'],['#ef4444','Red'],['#ec4899','Pink'],['#14b8a6','Teal']]
+        .map(([c,n]) => `<div class="color-swatch" style="background:${c}" title="${n}" onclick="setPrimaryColor('${c}', this)"></div>`).join('');
+    }
+    // Color swatches active state
+    const swatches = document.querySelectorAll('.color-swatch');
+    swatches.forEach(sw => {
+      if (sw.style.background === s.primaryColor) sw.classList.add('active');
+    });
+
+    // Pipeline stages
+    renderPipelineStagesSettings();
+
+    // Notifications
+    const notifs = s.notifications || {};
+    const notifItems = [
+      ['taskReminders','Task Reminders','Get notified before tasks are due'],
+      ['dealUpdates','Deal Updates','Alerts when deals change stage'],
+      ['leadAlerts','Lead Alerts','Notifications for new leads'],
+      ['emailNotifs','Email Notifications','Receive email summaries']
+    ];
+    const notifEl = document.getElementById('notifSettings');
+    if (notifEl) {
+      notifEl.innerHTML = notifItems.map(([key, title, desc]) => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg);border-radius:var(--radius)">
+          <div><div style="font-weight:600;margin-bottom:2px">${title}</div><div class="text-sm text-secondary">${desc}</div></div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="notif_${key}" ${notifs[key] !== false ? 'checked' : ''}>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>`).join('');
+    }
+
+    // Account
+    const user = Auth.getCurrentUser();
+    const accountEl = document.getElementById('accountForm');
+    if (accountEl && user) {
+      accountEl.innerHTML = `
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="aName" value="${escapeHtml(user.name)}"></div>
+          <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="aEmail" type="email" value="${escapeHtml(user.email)}"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="aPhone" value="${escapeHtml(user.phone||'')}"></div>
+          <div class="form-group"><label class="form-label">Department</label><input class="form-input" id="aDept" value="${escapeHtml(user.department||'')}"></div>
+        </div>
+        <div class="form-group"><label class="form-label">New Password</label><input class="form-input" id="aNewPass" type="password" placeholder="Leave blank to keep current"></div>
+        <div style="margin-top:8px;padding:10px;background:var(--primary-bg);border-radius:var(--radius);font-size:0.82rem">
+          <span class="badge badge-primary">${capitalize(user.role)}</span> · Member since ${formatDate(user.createdAt)}
+        </div>
+        <button class="btn btn-primary mt-3" onclick="saveAccountSettings()"><i class="fas fa-save"></i> Save Account</button>`;
+    }
+  }
+
+  function renderPipelineStagesSettings() {
+    const stages = DB.getAll('pipelineStages');
+    const el = document.getElementById('pipelineStagesList');
+    if (!el) return;
+    el.innerHTML = stages.map(s => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg);border-radius:var(--radius);margin-bottom:8px" id="stage-row-${s.id}">
+        <span style="width:12px;height:12px;border-radius:99px;background:${s.color};flex-shrink:0"></span>
+        <input class="form-input" value="${escapeHtml(s.name)}" id="stageName_${s.id}" style="flex:1">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:0.78rem;color:var(--text-muted)">%</span>
+          <input class="form-input" type="number" min="0" max="100" value="${s.probability}" id="stageProb_${s.id}" style="width:70px">
+        </div>
+        <input type="color" value="${s.color}" id="stageColor_${s.id}" style="width:36px;height:36px;border:none;border-radius:6px;cursor:pointer;background:none">
+      </div>`).join('');
+  }
+
+  function savePipelineStages() {
+    const stages = DB.getAll('pipelineStages').map(s => ({
+      ...s,
+      name: document.getElementById('stageName_' + s.id)?.value.trim() || s.name,
+      probability: parseInt(document.getElementById('stageProb_' + s.id)?.value) || s.probability,
+      color: document.getElementById('stageColor_' + s.id)?.value || s.color
+    }));
+    DB.set('pipelineStages', stages);
+    showToast('Pipeline stages saved', 'success');
+  }
+
+  function saveCompanySettings() {
+    const s = DB.get('settings') || {};
+    s.companyName = document.getElementById('sCompanyName')?.value.trim() || s.companyName;
+    s.companyEmail = document.getElementById('sCompanyEmail')?.value.trim() || s.companyEmail;
+    s.companyPhone = document.getElementById('sCompanyPhone')?.value.trim() || s.companyPhone;
+    s.companyAddress = document.getElementById('sAddress')?.value.trim() || s.companyAddress;
+    s.currency = document.getElementById('sCurrency')?.value || 'USD';
+    DB.set('settings', s);
+    showToast('Company settings saved', 'success');
+  }
+
+  function saveNotifSettings() {
+    const s = DB.get('settings') || {};
+    s.notifications = {
+      taskReminders: document.getElementById('notif_taskReminders')?.checked !== false,
+      dealUpdates: document.getElementById('notif_dealUpdates')?.checked !== false,
+      leadAlerts: document.getElementById('notif_leadAlerts')?.checked !== false,
+      emailNotifs: document.getElementById('notif_emailNotifs')?.checked !== false
+    };
+    DB.set('settings', s);
+    showToast('Notification preferences saved', 'success');
+  }
+
+  function saveAccountSettings() {
+    const user = Auth.getCurrentUser();
+    if (!user) return;
+    user.name = document.getElementById('aName')?.value.trim() || user.name;
+    user.email = document.getElementById('aEmail')?.value.trim() || user.email;
+    user.phone = document.getElementById('aPhone')?.value.trim() || '';
+    user.department = document.getElementById('aDept')?.value.trim() || '';
+    const newPass = document.getElementById('aNewPass')?.value;
+    if (newPass && newPass.length >= 6) user.password = newPass;
+    DB.save('users', user);
+    // Update session
+    const session = Auth.getSession();
+    if (session) { session.name = user.name; localStorage.setItem('crm_session', JSON.stringify(session)); }
+    renderSidebar();
+    showToast('Account updated', 'success');
+  }
+
+  function setTheme(theme) {
+    const s = DB.get('settings') || {};
+    s.theme = theme;
+    DB.set('settings', s);
+    document.documentElement.setAttribute('data-theme', theme);
+    const tl = document.getElementById('themeLight');
+    const td = document.getElementById('themeDark');
+    if (theme === 'light') { if (tl) tl.style.borderColor='var(--primary)'; if (td) td.style.borderColor='var(--border)'; }
+    else { if (tl) tl.style.borderColor='var(--border)'; if (td) td.style.borderColor='var(--primary)'; }
+    renderTopbar('Settings');
+    showToast('Theme updated', 'success');
+  }
+
+  function setPrimaryColor(color, el) {
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    document.documentElement.style.setProperty('--primary', color);
+    const s = DB.get('settings') || {};
+    s.primaryColor = color;
+    DB.set('settings', s);
+    showToast('Brand color updated', 'success');
+  }
+
+  function exportAllData() {
+    const data = {};
+    ['users','customers','leads','deals','tasks','activities','emails','automations','notes','settings','pipelineStages'].forEach(k => {
+      data[k] = DB.getAll(k);
+    });
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'nexuscrm-data.json'; a.click();
+    URL.revokeObjectURL(url);
+    showToast('Data exported', 'success');
+  }
+
+  function confirmReset() {
+    showConfirm('Reset all data to demo state? ALL your custom records will be permanently deleted.', () => {
+      resetData();
+      showToast('Data reset to demo state', 'success');
+      setTimeout(() => window.location.href = 'dashboard.html', 1000);
+    }, { danger: true, confirmText: 'Reset Everything', title: 'Reset Demo Data' });
+  }
+
+  document.addEventListener('DOMContentLoaded', initSettings);
+</script>
+</body>
+</html>

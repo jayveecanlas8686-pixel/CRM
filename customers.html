@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customers — NexusCRM</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-wrapper">
+    <header class="topbar" id="topbar"></header>
+    <main class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Customers</h1>
+          <p class="page-subtitle">Manage all your customer relationships</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-outline" onclick="exportCustomers()"><i class="fas fa-download"></i> Export CSV</button>
+          <button class="btn btn-primary" onclick="openAddCustomer()"><i class="fas fa-plus"></i> Add Customer</button>
+        </div>
+      </div>
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="search-box" style="flex:1">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchCustomers" placeholder="Search by name, email, company..." oninput="filterCustomers()">
+        </div>
+        <select class="filter-select" id="filterStatus" onchange="filterCustomers()">
+          <option value="">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="prospect">Prospect</option>
+        </select>
+        <select class="filter-select" id="filterIndustry" onchange="filterCustomers()">
+          <option value="">All Industries</option>
+          <option>Technology</option><option>SaaS</option><option>Finance</option><option>Healthcare</option>
+          <option>Retail</option><option>Consulting</option><option>Logistics</option><option>Green Tech</option>
+        </select>
+        <select class="filter-select" id="filterOwner" onchange="filterCustomers()">
+          <option value="">All Owners</option>
+        </select>
+      </div>
+      <!-- Table -->
+      <div class="card">
+        <div class="card-header" style="padding:16px 20px">
+          <span class="text-muted text-sm" id="customerCount">Loading...</span>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" onclick="sortCustomers('name')"><i class="fas fa-sort-alpha-down"></i> Sort</button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="cursor:pointer" onclick="sortCustomers('name')">Company <i class="fas fa-sort" style="opacity:0.4"></i></th>
+                <th>Contact Person</th>
+                <th>Phone</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th style="cursor:pointer" onclick="sortCustomers('revenue')">Revenue <i class="fas fa-sort" style="opacity:0.4"></i></th>
+                <th>Owner</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="customerTableBody">
+              <tr><td colspan="8"><div class="empty-state"><div class="spinner" style="margin:0 auto"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modal"></div></div>
+<div class="toast-container" id="toastContainer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/customers.js"></script>
+<script>document.addEventListener('DOMContentLoaded', initCustomers);</script>
+</body>
+</html>

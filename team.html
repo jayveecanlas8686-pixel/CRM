@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team — NexusCRM</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-wrapper">
+    <header class="topbar" id="topbar"></header>
+    <main class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Team Management</h1>
+          <p class="page-subtitle">Manage your sales team members and roles</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" id="addMemberBtn" onclick="openAddMember()"><i class="fas fa-user-plus"></i> Add Member</button>
+        </div>
+      </div>
+      <!-- Team Stats -->
+      <div class="stats-grid mb-6" id="teamStats"></div>
+      <!-- Team Grid -->
+      <div id="teamGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px"></div>
+    </main>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modal"></div></div>
+<div class="toast-container" id="toastContainer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  function initTeam() {
+    initApp('Team');
+    if (!Auth.hasRole('manager')) {
+      document.getElementById('addMemberBtn').style.display = 'none';
+    }
+    renderTeamStats();
+    renderTeam();
+  }
+
+  function renderTeamStats() {
+    const users = DB.getAll('users');
+    const el = document.getElementById('teamStats');
+    if (!el) return;
+    const active = users.filter(u => u.status === 'active').length;
+    const roles = { admin: 0, manager: 0, agent: 0, viewer: 0 };
+    users.forEach(u => { if (roles[u.role] !== undefined) roles[u.role]++; });
+    el.innerHTML = `
+      <div class="stat-card"><div class="stat-icon primary"><i class="fas fa-users"></i></div><div class="stat-body"><div class="stat-label">Total Members</div><div class="stat-value">${users.length}</div></div></div>
+      <div class="stat-card"><div class="stat-icon success"><i class="fas fa-user-check"></i></div><div class="stat-body"><div class="stat-label">Active</div><div class="stat-value">${active}</div></div></div>
+      <div class="stat-card"><div class="stat-icon danger"><i class="fas fa-shield-alt"></i></div><div class="stat-body"><div class="stat-label">Admins</div><div class="stat-value">${roles.admin}</div></div></div>
+      <div class="stat-card"><div class="stat-icon accent"><i class="fas fa-user-tie"></i></div><div class="stat-body"><div class="stat-label">Sales Agents</div><div class="stat-value">${roles.agent + roles.manager}</div></div></div>`;
+  }
+
+  function renderTeam() {
+    const el = document.getElementById('teamGrid');
+    if (!el) return;
+    const users = DB.getAll('users');
+    const deals = DB.getAll('deals');
+    const tasks = DB.getAll('tasks');
+    const customers = DB.getAll('customers');
+
+    el.innerHTML = users.map(u => {
+      const userDeals = deals.filter(d => d.owner == u.id);
+      const wonDeals = userDeals.filter(d => d.stage === 'won');
+      const userTasks = tasks.filter(t => t.assignedTo == u.id);
+      const completedTasks = userTasks.filter(t => t.status === 'completed');
+      const userCustomers = customers.filter(c => c.owner == u.id).length;
+      const wonRevenue = wonDeals.reduce((s, d) => s + d.value, 0);
+      const taskCompletion = userTasks.length ? Math.round((completedTasks.length / userTasks.length) * 100) : 0;
+      const isCurrentUser = Auth.getCurrentUser()?.id == u.id;
+
+      return `
+      <div class="card" style="padding:24px">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+          <div class="avatar avatar-lg" style="background:${avatarColor(u.name)}">${avatarInitials(u.name).toUpperCase()}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;font-size:1rem">${escapeHtml(u.name)}${isCurrentUser?' <span style="font-size:0.72rem;color:var(--primary)">(You)</span>':''}</div>
+            <div style="font-size:0.8rem;color:var(--text-muted)">${escapeHtml(u.email)}</div>
+            <div style="margin-top:4px">${statusBadge(u.role)}</div>
+          </div>
+          <span class="badge ${u.status==='active'?'badge-success':'badge-gray'}">${capitalize(u.status)}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px">
+          <div style="background:var(--bg);border-radius:var(--radius);padding:10px;text-align:center">
+            <div style="font-size:1.2rem;font-weight:800;color:var(--primary)">${userCustomers}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">Customers</div>
+          </div>
+          <div style="background:var(--bg);border-radius:var(--radius);padding:10px;text-align:center">
+            <div style="font-size:1.2rem;font-weight:800;color:var(--success)">${wonDeals.length}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">Deals Won</div>
+          </div>
+          <div style="background:var(--bg);border-radius:var(--radius);padding:10px;text-align:center">
+            <div style="font-size:1.2rem;font-weight:800;color:var(--warning)">${userTasks.filter(t=>t.status!=='completed').length}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">Open Tasks</div>
+          </div>
+          <div style="background:var(--bg);border-radius:var(--radius);padding:10px;text-align:center">
+            <div style="font-size:1.2rem;font-weight:800;color:var(--accent)">${formatCurrency(wonRevenue).replace('$','$').replace(',000','K')}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">Won Revenue</div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:0.75rem;color:var(--text-muted)">Task Completion</span>
+            <span style="font-size:0.75rem;font-weight:700">${taskCompletion}%</span>
+          </div>
+          <div class="progress"><div class="progress-bar ${taskCompletion>=70?'success':taskCompletion>=40?'warning':'danger'}" style="width:${taskCompletion}%"></div></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          ${Auth.hasRole('manager') ? `<button class="btn btn-outline btn-sm" onclick="openEditMember(${u.id})"><i class="fas fa-edit"></i> Edit</button>` : ''}
+          ${Auth.hasRole('admin') && !isCurrentUser ? `<button class="btn btn-ghost btn-sm" onclick="toggleUserStatus(${u.id})" style="color:${u.status==='active'?'var(--warning)':'var(--success)'}"><i class="fas fa-${u.status==='active'?'ban':'check'}"></i> ${u.status==='active'?'Deactivate':'Activate'}</button>` : ''}
+          ${Auth.hasRole('admin') && !isCurrentUser ? `<button class="btn btn-ghost btn-sm" onclick="deleteMember(${u.id})" style="color:var(--danger)"><i class="fas fa-trash"></i></button>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function openAddMember() {
+    if (!Auth.hasRole('manager')) return;
+    showModal({
+      title: 'Add Team Member',
+      body: `
+        <div class="form-row">
+          <div class="form-group"><label class="form-label required">Full Name</label><input class="form-input" id="mName" placeholder="John Smith"></div>
+          <div class="form-group"><label class="form-label required">Email</label><input class="form-input" id="mEmail" type="email" placeholder="john@company.com"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label required">Password</label><input class="form-input" id="mPassword" type="password" placeholder="Temporary password"></div>
+          <div class="form-group"><label class="form-label">Role</label>
+            <select class="form-select" id="mRole">
+              <option value="agent">Sales Agent</option>
+              <option value="manager">Sales Manager</option>
+              ${Auth.hasRole('admin') ? '<option value="admin">Admin</option>' : ''}
+              <option value="viewer">Viewer</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Department</label><input class="form-input" id="mDept" placeholder="Sales"></div>
+          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="mPhone" placeholder="+1-555-0000"></div>
+        </div>`,
+      footer: `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveMember()"><i class="fas fa-user-plus"></i> Add Member</button>`
+    });
+  }
+
+  function openEditMember(id) {
+    const u = DB.getById('users', id);
+    if (!u) return;
+    showModal({
+      title: 'Edit Team Member',
+      body: `
+        <input type="hidden" id="mId" value="${u.id}">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label required">Full Name</label><input class="form-input" id="mName" value="${escapeHtml(u.name)}"></div>
+          <div class="form-group"><label class="form-label required">Email</label><input class="form-input" id="mEmail" type="email" value="${escapeHtml(u.email)}"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Role</label>
+            <select class="form-select" id="mRole">
+              <option value="agent" ${u.role==='agent'?'selected':''}>Sales Agent</option>
+              <option value="manager" ${u.role==='manager'?'selected':''}>Sales Manager</option>
+              ${Auth.hasRole('admin') ? `<option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>` : ''}
+              <option value="viewer" ${u.role==='viewer'?'selected':''}>Viewer</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Status</label>
+            <select class="form-select" id="mStatus">
+              <option value="active" ${u.status==='active'?'selected':''}>Active</option>
+              <option value="inactive" ${u.status==='inactive'?'selected':''}>Inactive</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Department</label><input class="form-input" id="mDept" value="${escapeHtml(u.department||'')}"></div>
+          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="mPhone" value="${escapeHtml(u.phone||'')}"></div>
+        </div>`,
+      footer: `<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveMember()"><i class="fas fa-save"></i> Save Changes</button>`
+    });
+  }
+
+  function saveMember() {
+    const id = document.getElementById('mId')?.value;
+    const name = document.getElementById('mName')?.value.trim();
+    const email = document.getElementById('mEmail')?.value.trim();
+    if (!name || !email) { showToast('Name and email are required', 'error'); return; }
+
+    const isEdit = !!id;
+    const member = isEdit ? { ...DB.getById('users', parseInt(id)) } : {
+      id: DB.nextId('users'), avatar: null, status: 'active',
+      createdAt: new Date().toISOString().split('T')[0], lastLogin: null
+    };
+
+    if (!isEdit) {
+      const password = document.getElementById('mPassword')?.value;
+      if (!password) { showToast('Password is required', 'error'); return; }
+      const existing = DB.getAll('users').find(u => u.email.toLowerCase() === email.toLowerCase());
+      if (existing) { showToast('Email already in use', 'error'); return; }
+      member.password = password;
+    }
+
+    member.name = name;
+    member.email = email;
+    member.role = document.getElementById('mRole')?.value || 'agent';
+    member.department = document.getElementById('mDept')?.value.trim() || 'Sales';
+    member.phone = document.getElementById('mPhone')?.value.trim() || '';
+    if (isEdit) member.status = document.getElementById('mStatus')?.value || 'active';
+
+    DB.save('users', member);
+    closeModal();
+    renderTeam();
+    renderTeamStats();
+    renderSidebar();
+    showToast(isEdit ? 'Member updated' : 'Member added', 'success');
+  }
+
+  function toggleUserStatus(id) {
+    const u = DB.getById('users', id);
+    if (!u) return;
+    u.status = u.status === 'active' ? 'inactive' : 'active';
+    DB.save('users', u);
+    renderTeam();
+    showToast(`${u.name} ${u.status === 'active' ? 'activated' : 'deactivated'}`, 'success');
+  }
+
+  function deleteMember(id) {
+    const u = DB.getById('users', id);
+    if (!u) return;
+    if (!Auth.hasRole('admin')) { showToast('Admin access required', 'error'); return; }
+    showConfirm(`Remove ${u.name} from the team?`, () => {
+      DB.delete('users', id);
+      renderTeam();
+      renderTeamStats();
+      showToast('Team member removed', 'success');
+    }, { danger: true, confirmText: 'Remove' });
+  }
+
+  document.addEventListener('DOMContentLoaded', initTeam);
+</script>
+</body>
+</html>

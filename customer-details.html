@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Details — NexusCRM</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-wrapper">
+    <header class="topbar" id="topbar"></header>
+    <main class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <a href="customers.html" style="display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);font-size:0.85rem;margin-bottom:6px"><i class="fas fa-arrow-left"></i> Back to Customers</a>
+          <h1 class="page-title">Customer Details</h1>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-outline" onclick="logActivityModal()"><i class="fas fa-plus"></i> Log Activity</button>
+          <button class="btn btn-primary" onclick="window.location.href='emails.html'"><i class="fas fa-envelope"></i> Send Email</button>
+        </div>
+      </div>
+      <div class="customer-profile">
+        <!-- Left: Profile Card -->
+        <div id="customerProfile" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;text-align:center">
+          <div class="spinner" style="margin:40px auto"></div>
+        </div>
+        <!-- Right: Tabs -->
+        <div>
+          <div class="tabs">
+            <div class="tab-btn active" onclick="switchTab('deals')">Deals</div>
+            <div class="tab-btn" onclick="switchTab('tasks')">Tasks</div>
+            <div class="tab-btn" onclick="switchTab('notes')">Notes</div>
+            <div class="tab-btn" onclick="switchTab('activities')">Activities</div>
+          </div>
+          <div class="tab-content active" id="tab-deals">
+            <div class="flex justify-between items-center mb-3">
+              <h4>Linked Deals</h4>
+              <button class="btn btn-primary btn-sm" onclick="window.location.href='deals.html'"><i class="fas fa-plus"></i> New Deal</button>
+            </div>
+            <div id="customerDeals"></div>
+          </div>
+          <div class="tab-content" id="tab-tasks">
+            <div class="flex justify-between items-center mb-3">
+              <h4>Tasks</h4>
+              <button class="btn btn-primary btn-sm" onclick="openAddTaskForCustomer()"><i class="fas fa-plus"></i> New Task</button>
+            </div>
+            <div id="customerTasks"></div>
+          </div>
+          <div class="tab-content" id="tab-notes">
+            <h4 style="margin-bottom:12px">Notes</h4>
+            <div id="customerNotes"></div>
+          </div>
+          <div class="tab-content" id="tab-activities">
+            <h4 style="margin-bottom:12px">Activity Timeline</h4>
+            <div id="customerActivities"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modal"></div></div>
+<div class="toast-container" id="toastContainer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/customers.js"></script>
+<script src="assets/js/tasks.js"></script>
+<script>
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+  }
+
+  function logActivityModal() {
+    const params = new URLSearchParams(window.location.search);
+    const id = parseInt(params.get('id'));
+    showModal({
+      title: 'Log Activity',
+      body: `
+        <div class="form-group"><label class="form-label">Activity Type</label>
+          <select class="form-select" id="actType">
+            <option value="call">📞 Call</option>
+            <option value="meeting">👥 Meeting</option>
+            <option value="email">📧 Email</option>
+            <option value="note">📝 Note</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label required">Description</label>
+          <textarea class="form-textarea" id="actDesc" placeholder="What happened?"></textarea>
+        </div>`,
+      footer: `<button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+               <button class="btn btn-primary" onclick="saveActivity(${id})">Log Activity</button>`
+    });
+  }
+
+  function saveActivity(customerId) {
+    const type = document.getElementById('actType')?.value;
+    const desc = document.getElementById('actDesc')?.value.trim();
+    if (!desc) { showToast('Please enter a description', 'error'); return; }
+    logActivity(type, desc, { type: 'customer', id: customerId });
+    closeModal();
+    renderCustomerActivities(customerId);
+    document.querySelector('[onclick="switchTab(\'activities\')"]').click();
+    showToast('Activity logged', 'success');
+  }
+
+  function openAddTaskForCustomer() {
+    const params = new URLSearchParams(window.location.search);
+    const id = parseInt(params.get('id'));
+    openAddTask();
+    setTimeout(() => {
+      const typeEl = document.getElementById('tLinkType');
+      if (typeEl) { typeEl.value = 'customer'; updateLinkSelect(); }
+      setTimeout(() => {
+        const idEl = document.getElementById('tLinkId');
+        if (idEl) idEl.value = id;
+      }, 50);
+    }, 100);
+  }
+
+  document.addEventListener('DOMContentLoaded', initCustomerDetails);
+</script>
+</body>
+</html>

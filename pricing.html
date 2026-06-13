@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing — NexusCRM</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <nav class="public-nav">
+    <div class="nav-logo"><div class="nav-logo-icon">N</div><div class="nav-logo-text">Nexus<span>CRM</span></div></div>
+    <div class="nav-links"><a href="index.html">Home</a><a href="features.html">Features</a><a href="pricing.html">Pricing</a><a href="help-center.html">Help</a></div>
+    <div class="nav-cta">
+      <a href="login.html" class="btn btn-outline btn-sm">Sign In</a>
+      <a href="register.html" class="btn btn-primary btn-sm">Get Started</a>
+    </div>
+  </nav>
+
+  <section style="padding:60px 40px 40px;text-align:center;max-width:700px;margin:0 auto">
+    <div class="hero-badge"><i class="fas fa-tag"></i> Simple Pricing</div>
+    <h1 class="hero-title">Plans for Teams of <span class="highlight">All Sizes</span></h1>
+    <p style="color:var(--text-secondary);font-size:1rem;margin-bottom:24px">No long-term contracts. Cancel anytime. Free trial on all paid plans.</p>
+    <!-- Toggle -->
+    <div style="display:inline-flex;background:var(--bg-secondary);border-radius:99px;padding:4px;margin-bottom:40px">
+      <button id="monthlyBtn" onclick="setBilling('monthly')" style="padding:8px 20px;border-radius:99px;font-weight:700;font-size:0.88rem;border:none;cursor:pointer;background:var(--primary);color:#fff">Monthly</button>
+      <button id="annualBtn" onclick="setBilling('annual')" style="padding:8px 20px;border-radius:99px;font-weight:700;font-size:0.88rem;border:none;cursor:pointer;background:transparent;color:var(--text-secondary)">Annual <span style="background:var(--success);color:#fff;font-size:0.7rem;padding:1px 6px;border-radius:99px;margin-left:4px">Save 20%</span></button>
+    </div>
+  </section>
+
+  <section class="pricing-section" style="padding-top:0">
+    <div class="pricing-grid">
+      <!-- Free -->
+      <div class="pricing-card">
+        <div class="pricing-plan">Starter</div>
+        <div class="pricing-price"><sup>$</sup>0<sub>/mo</sub></div>
+        <div class="pricing-desc">Perfect for solo founders and freelancers.</div>
+        <div class="pricing-features">
+          <div class="pricing-feature"><i class="fas fa-check"></i> Up to 3 users</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> 250 contacts</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> 10 active deals</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Basic pipeline</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Email center</div>
+          <div class="pricing-feature missing"><i class="fas fa-times"></i> Automation builder</div>
+          <div class="pricing-feature missing"><i class="fas fa-times"></i> Advanced reports</div>
+          <div class="pricing-feature missing"><i class="fas fa-times"></i> API access</div>
+        </div>
+        <a href="register.html" class="btn btn-outline w-full">Get Started Free</a>
+      </div>
+      <!-- Pro -->
+      <div class="pricing-card popular">
+        <div class="pricing-popular-badge">Most Popular</div>
+        <div class="pricing-plan">Professional</div>
+        <div class="pricing-price" id="proPrice"><sup>$</sup>49<sub>/mo per user</sub></div>
+        <div class="pricing-desc">For growing sales teams with automation needs.</div>
+        <div class="pricing-features">
+          <div class="pricing-feature"><i class="fas fa-check"></i> Up to 15 users</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Unlimited contacts</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Unlimited deals</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Full pipeline</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Automation builder</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Advanced reports & CSV export</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Team management</div>
+          <div class="pricing-feature missing"><i class="fas fa-times"></i> API access</div>
+        </div>
+        <a href="register.html" class="btn btn-primary w-full">Start 14-Day Free Trial</a>
+        <p style="text-align:center;font-size:0.75rem;color:var(--text-muted);margin-top:8px">No credit card required</p>
+      </div>
+      <!-- Business -->
+      <div class="pricing-card">
+        <div class="pricing-plan">Business</div>
+        <div class="pricing-price" id="bizPrice"><sup>$</sup>99<sub>/mo per user</sub></div>
+        <div class="pricing-desc">For scaling businesses with advanced requirements.</div>
+        <div class="pricing-features">
+          <div class="pricing-feature"><i class="fas fa-check"></i> Unlimited users</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Unlimited everything</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Custom pipeline stages</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Full automation suite</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Advanced analytics</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> API access</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Priority support</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Custom integrations</div>
+        </div>
+        <a href="register.html" class="btn btn-outline w-full">Start Free Trial</a>
+      </div>
+      <!-- Enterprise -->
+      <div class="pricing-card">
+        <div class="pricing-plan">Enterprise</div>
+        <div class="pricing-price">Custom</div>
+        <div class="pricing-desc">For large enterprises with custom requirements.</div>
+        <div class="pricing-features">
+          <div class="pricing-feature"><i class="fas fa-check"></i> Everything in Business</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Dedicated account manager</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Custom SLAs</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> On-premise deployment</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> White-labeling options</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> 24/7 dedicated support</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> Custom training</div>
+          <div class="pricing-feature"><i class="fas fa-check"></i> SSO & advanced security</div>
+        </div>
+        <a href="help-center.html" class="btn btn-outline w-full">Contact Sales</a>
+      </div>
+    </div>
+
+    <!-- Feature Comparison -->
+    <div class="card mt-6" style="margin-top:48px">
+      <div class="card-header"><h3 class="card-title">Full Feature Comparison</h3></div>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th style="text-align:center">Starter</th>
+              <th style="text-align:center;color:var(--primary)">Professional</th>
+              <th style="text-align:center">Business</th>
+              <th style="text-align:center">Enterprise</th>
+            </tr>
+          </thead>
+          <tbody id="compareTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <h2>Start Your Free Trial Today</h2>
+    <p>No credit card. No commitment. Full access for 14 days.</p>
+    <a href="register.html" class="btn btn-xl" style="background:#fff;color:var(--primary);font-weight:700"><i class="fas fa-rocket"></i> Get Started Free</a>
+  </section>
+
+  <footer class="public-footer">
+    <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px">
+      <div class="nav-logo"><div class="nav-logo-icon">N</div><div class="nav-logo-text" style="color:#fff">Nexus<span>CRM</span></div></div>
+      <div style="display:flex;gap:20px"><a href="index.html" style="color:#64748b;font-size:0.85rem">Home</a><a href="features.html" style="color:#64748b;font-size:0.85rem">Features</a><a href="help-center.html" style="color:#64748b;font-size:0.85rem">Help</a></div>
+    </div>
+  </footer>
+
+  <script src="assets/js/data.js"></script>
+  <script>
+    document.getElementById('compareTableBody').innerHTML = [
+      ['Users','3','15','Unlimited','Unlimited'],
+      ['Contacts','250','Unlimited','Unlimited','Unlimited'],
+      ['Deals','10','Unlimited','Unlimited','Unlimited'],
+      ['Customer Management','✓','✓','✓','✓'],
+      ['Lead Tracking','✓','✓','✓','✓'],
+      ['Sales Pipeline','Basic','Full','Custom','Custom'],
+      ['Email Center','✓','✓','✓','✓'],
+      ['Tasks & Calendar','✓','✓','✓','✓'],
+      ['Team Management','—','✓','✓','✓'],
+      ['Automation Builder','—','✓','✓','✓'],
+      ['Reports & Analytics','Basic','Advanced','Advanced','Custom'],
+      ['CSV Export','—','✓','✓','✓'],
+      ['API Access','—','—','✓','✓'],
+      ['Priority Support','—','—','✓','24/7'],
+      ['Custom Integrations','—','—','—','✓'],
+      ['SLA','—','—','99.9%','Custom'],
+    ].map(([feat,...vals]) => `<tr>
+      <td style="font-weight:600">${feat}</td>
+      ${vals.map((v,i) => `<td style="text-align:center;${i===1?'color:var(--primary);font-weight:700':''}">
+        ${v === '✓' ? '<i class="fas fa-check" style="color:var(--success)"></i>' : v === '—' ? '<i class="fas fa-times" style="color:var(--text-muted)"></i>' : v}
+      </td>`).join('')}
+    </tr>`).join('');
+
+    let billing = 'monthly';
+    function setBilling(type) {
+      billing = type;
+      const prices = { monthly: { pro: 49, biz: 99 }, annual: { pro: 39, biz: 79 } };
+      document.getElementById('proPrice').innerHTML = `<sup>$</sup>${prices[type].pro}<sub>/mo per user</sub>`;
+      document.getElementById('bizPrice').innerHTML = `<sup>$</sup>${prices[type].biz}<sub>/mo per user</sub>`;
+      document.getElementById('monthlyBtn').style.cssText = type==='monthly' ? 'padding:8px 20px;border-radius:99px;font-weight:700;font-size:0.88rem;border:none;cursor:pointer;background:var(--primary);color:#fff' : 'padding:8px 20px;border-radius:99px;font-weight:700;font-size:0.88rem;border:none;cursor:pointer;background:transparent;color:var(--text-secondary)';
+      document.getElementById('annualBtn').style.cssText = type==='annual' ? 'padding:8px 20px;border-radius:99px;font-weight:700;font-size:0.88rem;border:none;cursor:pointer;background:var(--primary);color:#fff' : 'padding:8px 20px;border-radius:99px;font-weight:700;font-size:0.88rem;border:none;cursor:pointer;background:transparent;color:var(--text-secondary)';
+    }
+  </script>
+</body>
+</html>
